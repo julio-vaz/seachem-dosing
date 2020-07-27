@@ -1,0 +1,92 @@
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <!-- development version, includes helpful console warnings -->
+        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+        <link rel="stylesheet" href="https://unpkg.com/purecss@2.0.3/build/pure-min.css"
+            integrity="sha384-cg6SkqEOCV1NbJoCu11+bm0NvBRc8IYLRGXkmNrqUBfTjmMYwNKPWBTIKyw9mHNJ" crossorigin="anonymous">
+        <title>Seachem dosing calculator</title>
+    </head>
+    <body>
+        <form class="pure-form">
+            <div id="stability">
+                <h3>Seachem Stability</h3>
+                <label>Volume size: </label><input type="number" v-model="tankSize">
+                <p>Result: Dose {{ dose }} ml of Stability</p>
+            </div>
+            <div id="prime">
+                <h3>Seachem Prime</h3>
+                <label>Volume size: </label><input type="number" v-model="tankSize">
+                <p>Result: Dose {{ dose }} ml of prime</p>
+            </div>
+            <div id="buffers">
+                <h3>Seachem Buffers</h3>
+                <label>Volume size: </label><input type="number" v-model="tankSize"><br />
+                <!-- <label>Current PH: </label><input v-model="currentPH"><br /> -->
+                <label>Current dKH: </label><input type="number" v-model="currentKH"><br />
+                <label>Desired dKH: </label><input type="number" v-model="desiredKH"><br />
+                <label>Desired PH: </label><select type="number" v-model="desiredPH" tabindex="4">
+                    <option value="1.0">6.0</option>
+                    <option value="1.1">6.2</option>
+                    <option value="1.2">6.4</option>
+                    <option value="1.5">6.6</option>
+                    <option value="1.7" selected>6.8</option>
+                    <option value="2.0">7.0</option>
+                    <option value="2.2">7.2</option>
+                    <option value="2.5">7.5</option>
+                    <option value="4.0">8.0</option>
+                </select>
+
+                <p>Result: Dose {{ alkalineBufferDose }} g of <b>Alkaline Buffer</b> and {{ acidBufferDose }} g of <b>Acid
+                        Buffer</b></p>
+            </div>
+        </form>
+    </body>
+    <script type="text/javascript">
+        var prime = new Vue({
+            el: '#prime',
+            data: {
+                tankSize: 50,
+            },
+            computed: {
+                dose: function () {
+                    // based on the formula avaliable at the product label
+                    return ((this.tankSize * 5) / 200);
+                }
+            }
+        });
+        var stability = new Vue({
+            el: '#stability',
+            data: {
+                tankSize: 200,
+            },
+            computed: {
+                dose: function () {
+                    // based on the formula avaliable at the product label
+                    return ((this.tankSize * 5) / 40);
+                }
+            }
+        });
+        var buffers = new Vue({
+            el: '#buffers',
+            data: {
+                tankSize: 50,
+                currentKH: 0,
+                desiredPH: 1.7,
+                desiredKH: 6
+            },
+            computed: {
+                alkalineBufferDose: function () {
+                    // based on the formula avaliable at the product label
+                    // the original seachem formula uses us gallons, so this convertion was needed
+                    return (((this.desiredKH - this.currentKH) / 2.8) * (this.tankSize * 0.0925)).toFixed(1);
+                },
+                acidBufferDose: function () {
+                    // based on the formula avaliable at the product label
+                    console.log(parseFloat(this.desiredPH), parseFloat(this.alkalineBufferDose));
+                    return (parseFloat(this.alkalineBufferDose) / parseFloat(this.desiredPH)).toFixed(1);
+                }
+            }
+        });
+    </script>
+</html>
